@@ -1,70 +1,57 @@
 const express = require("express");
-const multer = require("multer");
-const path = require("path");
 const cors = require("cors");
+const multer = require("multer");
 const fs = require("fs");
 
 const app = express();
-
 app.use(cors());
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use("/uploads", express.static("uploads"));
-
+// file storage setup
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
+    cb(null, Date.now() + "-" + file.originalname);
+  },
 });
 
 const upload = multer({ storage: storage });
 
-// 🔥 upload with user + save to data.json
+// upload API
 app.post("/upload", upload.single("file"), (req, res) => {
-  const user = req.body.user;
-  const filename = req.file.filename;
-
-  const data = JSON.parse(fs.readFileSync("data.json"));
-  data.push({ user, filename });
-
-  fs.writeFileSync("data.json", JSON.stringify(data));
-
-  console.log("Saved:", user, filename);
-
-  res.send("File uploaded successfully");
-});
-
-// 🔥 user-wise files
-app.get("/files", (req, res) => {
-  const user = req.query.user;
-
-  const data = JSON.parse(fs.readFileSync("data.json"));
-  const userFiles = data
-    .filter(item => item.user === user)
-    .map(item => item.filename);
-
-  res.json(userFiles);
-});
-
-// delete file
-app.delete("/delete/:filename", (req, res) => {
-  const filePath = "uploads/" + req.params.filename;
-
-  fs.unlink(filePath, (err) => {
-    if (err) return res.status(500).send("Delete failed");
-
-    let data = JSON.parse(fs.readFileSync("data.json"));
-    data = data.filter(item => item.filename !== req.params.filename);
-    fs.writeFileSync("data.json", JSON.stringify(data));
-
-    res.send("File deleted successfully");
+  res.json({
+    message: "File uploaded successfully",
+    file: req.file,
   });
 });
 
-app.listen(5000, () => {
-  console.log("Server running on http://localhost:5000");
+// get files API
+app.get("/files", (req, res) => {
+  fs.readdir("uploads", (err, files) => {
+    if (err) {
+      return res.json([]);
+    }
+    res.json(files);
+  });
+});
+
+// delete file API
+app.delete("/delete/:name", (req, res) => {
+  const fileName = req.params.name;
+
+  fs.unlink("uploads/" + fileName, (err) => {
+    if (err) {
+      return res.json({ message: "Error deleting file" });
+    }
+    res.json({ message: "File deleted" });
+  });
+});
+
+// IMPORTANT: PORT FIX (Render ke liye)
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log("Server running on port " + PORT);
 });
