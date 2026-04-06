@@ -4,6 +4,12 @@ const multer = require("multer");
 const fs = require("fs");
 
 const app = express();
+
+// ✅ uploads folder auto create
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
+
 app.use(cors());
 app.use(express.json());
 
@@ -49,7 +55,7 @@ app.delete("/delete/:name", (req, res) => {
   });
 });
 
-// IMPORTANT: PORT FIX (Render ke liye)
+// ✅ PORT FIX (Render ke liye)
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
