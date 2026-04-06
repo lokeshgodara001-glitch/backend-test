@@ -32,7 +32,7 @@ window.login = function() {
     .then(() => {
       localStorage.setItem("user", "loggedin");
       alert("Login Success");
-      window.location.href = "upload.html";
+      window.location.href = "/";
     })
     .catch((error) => alert(error.message));
 }
