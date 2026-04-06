@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload</title>
+</head>
+<body>
+
+<div style="background:black; color:white; padding:10px;">
+  <span>My App</span>
+
+  <button onclick="goToUpload()">Upload</button>
+  <button onclick="goToFiles()">Files</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<h3 id="userInfo"></h3>
+
+<script>
+if (!localStorage.getItem("user")) {
+  alert("Please login first");
+  window.location.href = "login.html";
+}
+
+document.getElementById("userInfo").innerText = "User: Logged In";
+
+function logout() {
+  localStorage.removeItem("user");
+  window.location.href = "login.html";
+}
+
+function goToFiles() {
+  window.location.href = "files.html";
+}
+
+function goToUpload() {
+  window.location.href = "upload.html";
+}
+</script>
+
+<h2>Upload File</h2>
+
+<input type="file" id="fileInput"><br><br>
+<button onclick="uploadFile()">Upload</button>
+
+<p id="status"></p>
+
+<script>
+async function uploadFile() {
+  const file = document.getElementById("fileInput").files[0];
+
+  if (!file) {
+    document.getElementById("status").innerText = "No file selected";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+formData.append("user", localStorage.getItem("user"));
+
+  const response = await fetch("http://localhost:5000/upload", {
+    method: "POST",
+    body: formData
+  });
+
+  const result = await response.text();
+  document.getElementById("status").innerText = result;
+}
+</script>
+
+</body>
+</html>

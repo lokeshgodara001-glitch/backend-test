@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+</head>
+<body>
+
+<h2>Login</h2>
+
+<input type="email" id="email" placeholder="Enter email"><br><br>
+<input type="password" id="password" placeholder="Enter password"><br><br>
+
+<button onclick="login()">Login</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD4_ycOeqwB-MbarZ5XoB9EgswY8jHKPRg",
+  authDomain: "e-book-app-e361d.firebaseapp.com",
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.login = function() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      localStorage.setItem("user", "loggedin");
+      alert("Login Success");
+      window.location.href = "upload.html";
+    })
+    .catch((error) => alert(error.message));
+}
+</script>
+
+</body>
+</html>
